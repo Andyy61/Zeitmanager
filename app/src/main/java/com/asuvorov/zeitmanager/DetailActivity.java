@@ -14,6 +14,7 @@ import android.widget.Toast;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class DetailActivity extends AppCompatActivity implements TextWatcher {
 
@@ -78,7 +79,7 @@ public class DetailActivity extends AppCompatActivity implements TextWatcher {
     }
 
     private void berechneAlles() {
-        SimpleDateFormat df = new SimpleDateFormat("hh:mm");
+        SimpleDateFormat df = new SimpleDateFormat("hh:mm", Locale.GERMANY);
         try {
             Date kommenTime = new Date(df.parse(beginnEditText.getText().toString()).getTime());
             Date gehenTime = new Date(df.parse(endeEditText.getText().toString()).getTime());
@@ -94,6 +95,17 @@ public class DetailActivity extends AppCompatActivity implements TextWatcher {
 
             Date netto = df.parse(getDifferenceDate(differenceNetto));
             nettoStundenTextView.setText(df.format(netto));
+
+            Date amTag = new Date(df.parse("08:00").getTime());
+
+            int hours = netto.getHours() - amTag.getHours();
+            int minutes = netto.getMinutes() - amTag.getMinutes();
+
+
+
+            Date ueber = df.parse(df.format(String.valueOf(hours )+ ":" + String.valueOf(minutes)));
+            ueberBetragTextView.setText(df.format(ueber));
+
 
         } catch (ParseException e) {
             Toast.makeText(this,e.getMessage(),Toast.LENGTH_LONG).show();
@@ -135,6 +147,6 @@ public class DetailActivity extends AppCompatActivity implements TextWatcher {
 
         berechneAlles();
         db.updateDay(dateTextView.getText().toString(),beginnEditText.getText().toString(),pauseEditText.getText().toString(), endeEditText.getText().toString());
-        
+
     }
 }
