@@ -1,20 +1,10 @@
 package com.asuvorov.zeitmanager;
 
-import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.CardView;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.method.DateTimeKeyListener;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -30,11 +20,11 @@ public class MainActivity extends AppCompatActivity {
     private DbHelper dbHelper;
     private void initializeData() {
         days = new ArrayList<>();
-        DateFormat df = new SimpleDateFormat("HH:mm", Locale.GERMANY);
+        DateFormat df = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY);
         String date = df.format(Calendar.getInstance().getTime());
 
         Cursor cursor = dbHelper.getWeek(date);
-
+        if (cursor != null) {
             if (cursor.moveToFirst()) {
                 do {
                     days.add(new DayDataProvider(cursor.getString(2), cursor.getString(0), cursor.getString(3), cursor.getString(5), cursor.getString(4)));
@@ -42,13 +32,17 @@ public class MainActivity extends AppCompatActivity {
 
             } else {
                 dbHelper.setDaysOfWeek(new Date());
-                do {
-                    days.add(new DayDataProvider(cursor.getString(2), cursor.getString(0), cursor.getString(3), cursor.getString(5), cursor.getString(4)));
-                } while (cursor.moveToNext());
+                cursor = dbHelper.getWeek(date);
+                if(cursor.moveToFirst()) {
+                    do {
+                        days.add(new DayDataProvider(cursor.getString(2), cursor.getString(0), cursor.getString(3), cursor.getString(5), cursor.getString(4)));
+                    } while (cursor.moveToNext());
+                }
             }
-
+        } else {
+            dbHelper.setDaysOfWeek(new Date());
         }
-
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
