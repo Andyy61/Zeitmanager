@@ -23,7 +23,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="131dp"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:weightSum="1"
                 android:baselineAligned="false">
@@ -47,9 +47,10 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:textAlignment="viewEnd"
+                        android:textAlignment="textEnd"
+                        android:gravity="center_vertical"
                         android:text="30.05.2016"
-
+                        android:layout_marginRight="5dp"
                         android:id="@+id/dateTextView"
                         android:textColor="@color/colorPrimaryDark" />
 
@@ -136,7 +137,7 @@
                     android:layout_marginLeft="13dp">
                     <Button
                         android:layout_width="wrap_content"
-                        android:layout_height="35dp"
+                        android:layout_height="wrap_content"
                         android:background="@drawable/cornershape"
                         android:drawableLeft="@drawable/enter"
                         android:text="Kommen"
@@ -152,7 +153,7 @@
 
                     <Button
                         android:layout_width="wrap_content"
-                        android:layout_height="35dp"
+                        android:layout_height="wrap_content"
                         android:background="@drawable/cornershape"
                         android:drawableLeft="@drawable/leave"
                         android:text="Gehen"

@@ -8,12 +8,16 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 
 public class DetailActivity extends AppCompatActivity implements TextWatcher {
@@ -22,6 +26,7 @@ public class DetailActivity extends AppCompatActivity implements TextWatcher {
     EditText endeEditText, pauseEditText;
     TextView bruttoStundenTextView, nettoStundenTextView,ueberBetragTextView,weekDayTextView, dateTextView;
     EditText beginnEditText;
+
     DbHelper db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,51 +90,37 @@ public class DetailActivity extends AppCompatActivity implements TextWatcher {
             Date gehenTime = new Date(df.parse(endeEditText.getText().toString()).getTime());
             Date pausenTime = new Date(df.parse(pauseEditText.getText().toString()).getTime());
 
-            long differenceBrutto = gehenTime.getTime() - kommenTime.getTime();
+            bruttoStundenTextView.setText(getDifferenceDate(kommenTime,gehenTime));
 
-        
-            Date brutto = df.parse(getDifferenceDate(differenceBrutto));
-
-            bruttoStundenTextView.setText(df.format(brutto));
-            long differenceNetto = brutto.getTime() - pausenTime.getTime();
-
-            Date netto = df.parse(getDifferenceDate(differenceNetto));
-            nettoStundenTextView.setText(df.format(netto));
-
-            Date amTag = new Date(df.parse("08:00").getTime());
-
-            int hours = netto.getHours() - amTag.getHours();
-            int minutes = netto.getMinutes() - amTag.getMinutes();
+            Date bruttoTime = new Date(df.parse(bruttoStundenTextView.getText().toString().toString()).getTime());
+            nettoStundenTextView.setText(getDifferenceDate(pausenTime,bruttoTime));
 
 
+            Date nettoTime = new Date(df.parse(nettoStundenTextView.getText().toString()).getTime());
+            Date amTag = new Date(df.parse("08:00").getTime()); //Aus den Einstellungen lesen
 
-            Date ueber = df.parse(df.format(String.valueOf(hours )+ ":" + String.valueOf(minutes)));
-            ueberBetragTextView.setText(df.format(ueber));
+            ueberBetragTextView.setText(getDifferenceDate(amTag,nettoTime));
 
 
         } catch (ParseException e) {
             Toast.makeText(this,e.getMessage(),Toast.LENGTH_LONG).show();
         }
     }
-    
-    private String getDifferenceDate(long diff)
+
+    private String getDifferenceDate(Date date1, Date date2)
     {
-        long secondsInMilli = 1000;
-        long minutesInMilli = secondsInMilli * 60;
-        long hoursInMilli = minutesInMilli * 60;
-        long daysInMilli = hoursInMilli * 24;
+        Calendar startDate = new GregorianCalendar();
+        startDate.setTime(date1);
 
-        long elapsedDays = diff / daysInMilli;
-        diff = diff % daysInMilli;
+        Calendar endDate = new GregorianCalendar();
+        endDate.setTime(date2);
 
-        long elapsedHours = diff / hoursInMilli;
-        diff = diff % hoursInMilli;
 
-        long elapsedMinutes = diff / minutesInMilli;
-        diff = diff % minutesInMilli;
-
-        long elapsedSeconds = diff / secondsInMilli;
-        return elapsedHours + ":" + elapsedMinutes;
+        long totalMillis = endDate.getTimeInMillis() - startDate.getTimeInMillis();
+        int minutes =  ((int)(totalMillis / 1000) / 60) % 60;
+        int hours = (int)(totalMillis / 1000) / 3600;
+        DecimalFormat decimalFormat = new DecimalFormat("00");
+        return decimalFormat.format(hours) +":" + decimalFormat.format(minutes);
     }
 
     @Override
