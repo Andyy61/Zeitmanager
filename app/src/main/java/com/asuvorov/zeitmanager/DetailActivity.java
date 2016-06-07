@@ -81,7 +81,7 @@ public class DetailActivity extends AppCompatActivity {
             Date pausenTime = new Date(df.parse(pauseEditText.getText().toString()).getTime());
 
             long differenceBrutto = gehenTime.getTime() - kommenTime.getTime();
-            Date brutto = new Date(df.format(differenceBrutto));
+            Date brutto = new Date(differenceBrutto);
             Toast.makeText(this,brutto.toString(),Toast.LENGTH_LONG).show();
             bruttoStundenTextView.setText(brutto.toString());
             long differenceNetto = brutto.getTime() - pausenTime.getTime();
