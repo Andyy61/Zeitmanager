@@ -4,12 +4,11 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.format.DateFormat;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.TimePicker;
 
+import java.text.DecimalFormat;
 import java.util.Calendar;
 
 /**
@@ -34,6 +33,7 @@ public class TimePickerFragmentBeginn extends DialogFragment implements TimePick
     //onTimeSet() callback method
     public void onTimeSet(TimePicker view, int hourOfDay, int minute){
         EditText beginnEditText = (EditText) getActivity().findViewById(R.id.beginnEditText);
-        beginnEditText.setText(hourOfDay +":" + minute);
+        DecimalFormat decimalFormat = new DecimalFormat("00");
+        beginnEditText.setText(decimalFormat.format(hourOfDay) +":" + decimalFormat.format(minute));
     }
 }

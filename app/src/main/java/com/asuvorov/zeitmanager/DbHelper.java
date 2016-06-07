@@ -65,11 +65,9 @@ public class DbHelper extends SQLiteOpenHelper {
 
     }
 
-    public int updateDay(String datum, String wochennummer, String wochentag, String kommen, String pause, String gehen) {
+    public int updateDay(String datum,String kommen, String pause, String gehen) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(DBInformation.DATE, datum);
-        contentValues.put(DBInformation.WOCHENNUMMER, wochennummer);
-        contentValues.put(DBInformation.WOCHENTAG, wochentag);
         contentValues.put(DBInformation.KOMMEN, kommen);
         contentValues.put(DBInformation.PAUSE, pause);
         contentValues.put(DBInformation.GEHEN, gehen);
@@ -84,7 +82,7 @@ public class DbHelper extends SQLiteOpenHelper {
     public Cursor getInformation(String datum) {
         Cursor cursor;
         String[] projections = {DBInformation.DATE, DBInformation.WOCHENNUMMER, DBInformation.WOCHENTAG, DBInformation.KOMMEN, DBInformation.PAUSE, DBInformation.GEHEN};
-        String selection = DBInformation.DATE + " like ?";
+        String selection = DBInformation.DATE + " = ?";
 
 
         String[] selection_arg = {datum};
@@ -114,7 +112,7 @@ public class DbHelper extends SQLiteOpenHelper {
             cursor = sqLiteDatabase.query(DBInformation.TABLENAME, projections, selection, selection_arg, null, null, null);
 
         } catch (ParseException e) {
-            Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
+           e.printStackTrace();
         }
         return cursor;
     }
@@ -136,13 +134,15 @@ public class DbHelper extends SQLiteOpenHelper {
                 SimpleDateFormat weekFormat = new SimpleDateFormat("w", Locale.GERMANY);
                 String weekOfYear = weekFormat.format(cal.getTime());
 
-                addInformation(dayDate, weekOfYear, weekDay, "06:30", "01:25", "15:45");
+                addInformation(dayDate, weekOfYear, weekDay, "06:30", "01:15", "15:45");
             }
             catch (Exception e)
             {
                 Toast.makeText(context,e.getMessage(),Toast.LENGTH_LONG).show();
             }
+
         }
+
     }
 
     public int updateKommen(String date, String kommen)
