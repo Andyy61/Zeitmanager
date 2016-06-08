@@ -27,7 +27,18 @@ public class MainActivity extends AppCompatActivity {
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 do {
-                    days.add(new DayDataProvider(cursor.getString(2), cursor.getString(0), cursor.getString(3), cursor.getString(5), cursor.getString(4)));
+                    String tmpKommen = cursor.getString(3);
+                    Cursor cursor1 = dbHelper.getInformation(cursor.getString(0));
+                    if(cursor1.moveToLast())
+                    {
+                        days.add(new DayDataProvider(cursor1.getString(2), cursor1.getString(0), tmpKommen, cursor1.getString(5), cursor1.getString(4)));
+                    }
+                    else
+                    {
+                        cursor1.moveToFirst();
+                        days.add(new DayDataProvider(cursor1.getString(2), cursor1.getString(0), cursor1.getString(0), cursor1.getString(5), cursor1.getString(4)));
+                    }
+
                 } while (cursor.moveToNext());
 
             } else {

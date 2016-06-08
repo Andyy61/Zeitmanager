@@ -95,7 +95,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.DayViewHolder> {
             cv.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(context.getApplicationContext(), DetailActivity.class);
+                    Intent intent = new Intent(context.getApplicationContext(), DetailActivity3.class);
                     Bundle b = new Bundle();
                     b.putString("date", dayDate.getText().toString());
                     intent.putExtras(b); //Put your id to your next Intent

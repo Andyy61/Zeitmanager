@@ -5,10 +5,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by ASuvorov on 07.06.2016.
@@ -47,6 +50,7 @@ public class TimeListViewAdapter extends ArrayAdapter {
             layoutHandler = new LayoutHandler();
             layoutHandler.kommenTime = (EditText) row.findViewById(R.id.kommenTimeEditText);
             layoutHandler.gehenTime = (EditText) row.findViewById(R.id.gehenTimeEditText);
+            layoutHandler.hinzuButton = (Button) row.findViewById(R.id.hinzuButton);
             row.setTag(layoutHandler);
         } else {
             layoutHandler = (LayoutHandler) row.getTag();
@@ -54,6 +58,14 @@ public class TimeListViewAdapter extends ArrayAdapter {
         TimeListViewDataProvider dataProvider = (TimeListViewDataProvider) this.getItem(position);
         layoutHandler.kommenTime.setText(dataProvider.getKommenZeit());
         layoutHandler.gehenTime.setText(dataProvider.getGehenZeit());
+        layoutHandler.hinzuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Date now = new Date();
+                SimpleDateFormat df = new SimpleDateFormat("HH:mm");
+                add(new TimeListViewDataProvider(df.format(now),"--:--"));
+            }
+        });
 
         return row;
     }
@@ -62,5 +74,6 @@ public class TimeListViewAdapter extends ArrayAdapter {
     {
         EditText kommenTime;
         EditText gehenTime;
+        Button hinzuButton;
     }
 }

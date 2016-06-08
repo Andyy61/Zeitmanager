@@ -12,21 +12,22 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.sql.Time;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
 
-public class DetailActivity extends AppCompatActivity implements TextWatcher {
+public class DetailActivity3 extends AppCompatActivity implements TextWatcher {
 
 
-    EditText endeEditText, pauseEditText;
-    TextView bruttoStundenTextView, nettoStundenTextView,ueberBetragTextView,weekDayTextView, dateTextView;
-    EditText beginnEditText;
-
+    ListView listView;
+    TimeListViewAdapter adapter;
+    TextView nettoStundenTextView, bruttoStundenTextView, ueberBetragTextView;
     DbHelper db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,59 +38,61 @@ public class DetailActivity extends AppCompatActivity implements TextWatcher {
         String date = "";
         if(b != null)
             date = b.getString("date");
-        Toast.makeText(this,date,Toast.LENGTH_LONG).show();
-        dateTextView = (TextView) findViewById(R.id.dateTextView);
-        dateTextView.setText(date);
-        beginnEditText = (EditText) findViewById(R.id.beginnEditText);
-        beginnEditText.addTextChangedListener(this);
-        endeEditText = (EditText) findViewById(R.id.endeEditText);
-        endeEditText.addTextChangedListener(this);
-        pauseEditText = (EditText) findViewById(R.id.pauseEditText);
-        pauseEditText.addTextChangedListener(this);
-        bruttoStundenTextView = (TextView) findViewById(R.id.bruttoStundenTextView);
-        nettoStundenTextView = (TextView) findViewById(R.id.nettoStundenTextView);
-        ueberBetragTextView = (TextView) findViewById(R.id.ueberbetragTextView);
-        weekDayTextView = (TextView) findViewById(R.id.weekDayTextView);
+        listView = (ListView)findViewById(R.id.listView);
         db = new DbHelper(this);
-
         Cursor cursor = db.getInformation(date);
-
         if(cursor.moveToFirst()) {
-            do {
-                Toast.makeText(this,cursor.getString(2),Toast.LENGTH_LONG).show();
-                beginnEditText.setText(cursor.getString(3));
-                endeEditText.setText(cursor.getString(5));
-                pauseEditText.setText(cursor.getString(4));
-                weekDayTextView.setText(cursor.getString(2));
-                berechneAlles();
-            } while (cursor.moveToNext());
+            adapter = new TimeListViewAdapter(this, R.layout.kommengehenlayout);
+            listView.setAdapter(adapter);
+           do {
+               adapter.add(new TimeListViewDataProvider(cursor.getString(3),cursor.getString(5)));
+           }while (cursor.moveToNext());
+       // berechneAlles();
 
         }
-
-
-        beginnEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DialogFragment newFragment = new TimePickerFragmentBeginn();
-                newFragment.show(getFragmentManager(),"TimePicker");
-            }
-        });
-        endeEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DialogFragment newFragment = new TimePickerFragmentEnde();
-                newFragment.show(getFragmentManager(),"TimePicker");
-            }
-        });
     }
 
     private void berechneAlles() {
         SimpleDateFormat df = new SimpleDateFormat("hh:mm", Locale.GERMANY);
         try {
-            Date kommenTime = new Date(df.parse(beginnEditText.getText().toString()).getTime());
+
+            if(adapter.getCount() > 1)
+            {
+                Date tmpBrutto = null;
+                Date tmpPause = new Date(0);
+                Date letztesGehen = null;
+                for (int i = 0; i < adapter.getCount();i++)
+                {
+                    TimeListViewDataProvider tmpa =(TimeListViewDataProvider) adapter.getItem(i);
+
+                    letztesGehen = new Date(df.parse(tmpa.gehenZeit).getTime());
+
+                    if(!tmpa.gehenZeit.equals("--:--"))
+                    {
+                        if(tmpBrutto == null) {
+                            tmpBrutto = df.parse(getDifferenceDate(df.parse(tmpa.kommenZeit), df.parse(tmpa.gehenZeit)));
+                        }
+                        else
+                        {
+                            tmpBrutto = new Date(tmpBrutto.getTime() + df.parse(getDifferenceDate(df.parse(tmpa.kommenZeit), df.parse(tmpa.gehenZeit))).getTime());
+                        }
+                    }
+
+                    tmpPause = new Date(tmpPause.getTime() + df.parse(getDifferenceDate(letztesGehen, df.parse(tmpa.kommenZeit))).getTime());
+
+
+
+                }
+                Date netto = new Date(df.parse(getDifferenceDate(tmpPause,tmpBrutto)).getTime());
+                Date nettoTime = new Date(df.parse(nettoStundenTextView.getText().toString()).getTime());
+                Date amTag = new Date(df.parse("08:00").getTime()); //Aus den Einstellungen lesen
+                nettoStundenTextView.setText(df.format(netto));
+                bruttoStundenTextView.setText(df.format(tmpBrutto));
+                ueberBetragTextView.setText(getDifferenceDate(amTag,nettoTime));
+            }
+          /* Date kommenTime = new Date(df.parse(beginnEditText.getText().toString()).getTime());
             Date gehenTime = new Date(df.parse(endeEditText.getText().toString()).getTime());
             Date pausenTime = new Date(df.parse(pauseEditText.getText().toString()).getTime());
-
             bruttoStundenTextView.setText(getDifferenceDate(kommenTime,gehenTime));
 
             Date bruttoTime = new Date(df.parse(bruttoStundenTextView.getText().toString().toString()).getTime());
@@ -100,10 +103,10 @@ public class DetailActivity extends AppCompatActivity implements TextWatcher {
             Date amTag = new Date(df.parse("08:00").getTime()); //Aus den Einstellungen lesen
 
             ueberBetragTextView.setText(getDifferenceDate(amTag,nettoTime));
-
+*/
 
         } catch (ParseException e) {
-            Toast.makeText(this,e.getMessage(),Toast.LENGTH_LONG).show();
+            e.printStackTrace();
         }
     }
 
@@ -137,7 +140,7 @@ public class DetailActivity extends AppCompatActivity implements TextWatcher {
     public void afterTextChanged(Editable s) {
 
         berechneAlles();
-        db.updateDay(dateTextView.getText().toString(),beginnEditText.getText().toString(),pauseEditText.getText().toString(), endeEditText.getText().toString());
+        //db.updateDay(dateTextView.getText().toString(),beginnEditText.getText().toString(),pauseEditText.getText().toString(), endeEditText.getText().toString());
 
     }
 }
